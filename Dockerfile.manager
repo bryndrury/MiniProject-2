@@ -1,0 +1,16 @@
+# Use an official Python runtime as a parent image
+FROM python:latest
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY manager.py .
+COPY infofile.py .
+COPY plot_function.py .
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir pika numpy matplotlib matplotlib_inline awkward IPython aiohttp requests
+
+# Run consumer.py when the container launches
+CMD ["python", "./manager.py"]

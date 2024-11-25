@@ -1,0 +1,54 @@
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rabbit
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 6s # 6 seconds
+      timeout: 60s
+      retries: 3
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit queue_index_max_journal_entries 0"
+      RABBITMQ_USER: na3Ierntb2
+      RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
+
+  manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.manager
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+    networks:
+      - rabbit
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: na3Ierntb2
+      RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
+    deploy:
+      replicas: 0
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rabbit
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: na3Ierntb2
+      RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
+    deploy:
+      replicas: 12
+
+networks:
+  rabbit:
+    driver: bridge

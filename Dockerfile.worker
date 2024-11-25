@@ -1,0 +1,15 @@
+# Use an official Python runtime as a parent image
+FROM python:latest
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY worker.py .
+COPY infofile.py .
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir pika vector uproot awkward IPython aiohttp requests
+
+# Run producer.py when the container launches
+CMD ["python", "./worker.py"]
