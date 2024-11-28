@@ -92,7 +92,7 @@ def receive_results(collected_results) -> None:
         val = message['val']
         
         # Confirm receipt
-        print(f" [x] Received result for job: {s}, {val}. {len(job_list)-1} jobs remaining.")
+        print(f" [x] Received result for job: {s}, {val}. {len(job_list)-2} jobs remaining.")
         
         # Append the result to the list
         collected_results.append(message)
@@ -109,6 +109,13 @@ def receive_results(collected_results) -> None:
         if len(job_list) == 1 and job_list[0] == "STOPPER":
             print(f"\n [x] All results received.")
             ch.stop_consuming()
+            
+            # ============================================================================== #
+            # Optional: Uncomment to delete the work queue to stop the workers once finished #
+            
+            # ch.queue_delete(queue='work_queue') 
+            ch.close()
+            return
         
     # Set up the consumer
     channel.basic_consume(queue='result_queue', on_message_callback=callback)
@@ -148,5 +155,6 @@ if __name__ == "__main__":
     print(f"Results reformatted.   ", end="\r")
     
     print(f"Producing plot...      ", end="\r")
-    plot_function.plot(all_data, samples, fraction, step_size)
+    volume_path = "/usr/src/app/data"
+    plot_function.plot(all_data, samples, fraction, step_size, volume_path)
     print(f"Plot produced.         ", end="\r")

@@ -1,3 +1,4 @@
+import os # for file handling
 import numpy as np # for numerical calculations such as histogramming
 import matplotlib.pyplot as plt # for plotting
 import matplotlib_inline # to edit the inline plot format
@@ -6,7 +7,7 @@ from matplotlib.ticker import AutoMinorLocator # for minor ticks
 import awkward as ak # to represent nested data in columnar format
 
 
-def plot(all_data, samples, fraction, step_size):
+def plot(all_data, samples, fraction, step_size, path='/usr/src/app/data'):
     # Define constants
     MeV = 0.001
     GeV = 1.0
@@ -133,5 +134,7 @@ def plot(all_data, samples, fraction, step_size):
     # draw the legend
     main_axes.legend( frameon=False ) # no box around the legend
     
-    plt.savefig('plot.png') # save the plot as a pdf file
+    save_path = os.makedirs(path, exist_ok=True) # create a directory to save the plot
+    save_path = os.path.join(path, "plot.png") # path to save the plot
+    plt.savefig(save_path) # save the plot as a pdf file
     # *************

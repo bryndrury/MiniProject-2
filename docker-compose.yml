@@ -1,6 +1,8 @@
 services:
   rabbitmq:
-    image: "rabbitmq:3-management"
+    build:
+      context: .
+      dockerfile: Dockerfile.rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -15,6 +17,8 @@ services:
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit queue_index_max_journal_entries 0"
       RABBITMQ_USER: na3Ierntb2
       RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
   manager:
     build:
@@ -32,6 +36,8 @@ services:
       RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
     deploy:
       replicas: 0
+    volumes:
+      - manager_data:/usr/src/app/data
 
   worker:
     build:
@@ -52,3 +58,7 @@ services:
 networks:
   rabbit:
     driver: bridge
+
+volumes:
+  manager_data:
+  rabbitmq_data:

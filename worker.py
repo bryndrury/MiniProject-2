@@ -187,13 +187,11 @@ if __name__ == '__main__':
 
     print(' [*] Waiting for messages. To exit press CTRL+C')
     
-    while True:
-        try:
-            channel.start_consuming()
-        except KeyboardInterrupt:
-            print(f" [*] Stopping...")
-            break;
-        finally:
-            channel.stop_consuming()
-            connection.close()
-            break;
+    try:
+        channel.start_consuming()
+        channel.stop_consuming()
+    except KeyboardInterrupt:
+        print(f" [*] Stopping...")
+    finally:
+        connection.close()
+        print(f" [x] Connection closed.")
