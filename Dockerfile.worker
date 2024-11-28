@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 # Copy the current directory contents into the container at /usr/src/app
 COPY worker.py .
 COPY infofile.py .
+COPY HZZ /usr/src/app/HZZ
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir pika vector uproot awkward IPython aiohttp requests

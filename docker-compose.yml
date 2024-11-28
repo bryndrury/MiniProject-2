@@ -53,7 +53,7 @@ services:
       RABBITMQ_USER: na3Ierntb2
       RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
     deploy:
-      replicas: 12
+      replicas: 4
 
 networks:
   rabbit:
