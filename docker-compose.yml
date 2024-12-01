@@ -27,7 +27,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-    restart: always
+    restart: no
     networks:
       - rabbit
     environment:
@@ -35,7 +35,7 @@ services:
       RABBITMQ_USER: na3Ierntb2
       RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
     deploy:
-      replicas: 0
+      replicas: 1
     volumes:
       - manager_data:/usr/src/app/data
 
@@ -46,6 +46,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    restart: no
     networks:
       - rabbit
     environment:
@@ -53,7 +54,7 @@ services:
       RABBITMQ_USER: na3Ierntb2
       RABBITMQ_PASS: 4903utnarw/gsRg;aerqw4\tyq£?Ls
     deploy:
-      replicas: 4
+      replicas: 6
 
 networks:
   rabbit:

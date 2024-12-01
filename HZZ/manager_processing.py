@@ -62,7 +62,8 @@ def manager_receive_results(channel, collected_results, job_list):
                 
                 # ============================================================================== #
                 # Optional: Uncomment to delete the work queue to stop the workers once finished #
-                # ch.queue_delete(queue='work_queue') 
+                ch.queue_delete(queue='work_queue') 
+                ch.queue_delete(queue='result_queue')
                 
                 ch.close()
                 return
@@ -81,14 +82,15 @@ def reformat_results(collected_results, samples):
     
     # Loop over samples to gather the results for each sample
     for s in samples:
-        # All dictionaries that has the first key as s
-        frame_data = [result for result in collected_results if result['s'] == s]
         frames = []
-        # Loop through the frame data and append the values to the list
-        for data in frame_data:
-            frames.append(data['result'])
-
-        all_data[s] = ak.concatenate(frames) # dictionary entry is concatenated awkward arrays
+        for val in samples[s]['list']:
+            # Find the result for the sample
+            result = next((result for result in collected_results if result['s'] == s and result['val'] == val), None)
+            frames.append(ak.Array(result['result']))
+        if frames:
+            all_data[s] = ak.concatenate(frames)
+        else:
+            all_data[s] = ak.Array([])
 
     collected_results.clear() # Clear the list of results to free up memory
     return all_data

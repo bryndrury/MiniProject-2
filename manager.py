@@ -1,4 +1,5 @@
 import os
+import time
 import pika
     
 import HZZ.manager_processing as processing
@@ -35,8 +36,10 @@ if __name__ == "__main__":
     job_list = ["STOPPER"]
     processing.calculate_workload(job_list)
     
+    processing_time = time.time()
     send_workload(job_list)
     receive_results(collected_results, job_list)
+    print(f"Processing time: {time.time() - processing_time}")
     
     print(f"Reformatting results...", end="\r")
     all_data = processing.reformat_results(collected_results, samples)
