@@ -7,12 +7,14 @@ from matplotlib.ticker import AutoMinorLocator # for minor ticks
 import awkward as ak # to represent nested data in columnar format
 
 
-def plot(all_data, samples, fraction, step_size, path='/usr/src/app/data'):
+def plot(all_data, samples, fraction, path='/usr/src/app/data'):
     # Define constants
     MeV = 0.001
     GeV = 1.0
     # Set luminosity to 10 fb-1 for all data
     lumi = 10
+    
+    step_size = 5 * GeV # width of the bins in the histogram
 
     # x-axis range of the plot
     xmin = 80 * GeV

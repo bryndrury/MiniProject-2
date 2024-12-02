@@ -29,7 +29,7 @@ def calc_mass(lep_pt, lep_eta, lep_phi, lep_E):
     invariant_mass = (p4[:, 0] + p4[:, 1] + p4[:, 2] + p4[:, 3]).M * MeV # .M calculates the invariant mass
     return invariant_mass
 
-def calc_weight(weight_variables, sample, events):
+def calc_weight(weight_variables, sample, events, lumi=10):
     info = infofile.infos[sample]
     xsec_weight = (lumi*1000*info["xsec"])/(info["sumw"]*info["red_eff"]) #*1000 to go from fb-1 to pb-1
     total_weight = xsec_weight 
@@ -37,61 +37,104 @@ def calc_weight(weight_variables, sample, events):
         total_weight = total_weight * events[variable]
     return total_weight
 
-def work_on_data(val, data, sample_data, start, download_time) -> None:
-    # Number of events in this batch
-    nIn = len(data) 
-                            
-    # Record transverse momenta (see bonus activity for explanation)
-    data['leading_lep_pt'] = data['lep_pt'][:,0]
-    data['sub_leading_lep_pt'] = data['lep_pt'][:,1]
-    data['third_leading_lep_pt'] = data['lep_pt'][:,2]
-    data['last_lep_pt'] = data['lep_pt'][:,3]
-
-    # Cuts
-    lep_type = data['lep_type']
-    data = data[~cut_lep_type(lep_type)]
-    lep_charge = data['lep_charge']
-    data = data[~cut_lep_charge(lep_charge)]
+# def work_on_data(val, data, sample_data, start) -> None:
+#     cutoffs = [30, 20, 10]
     
-    # Invariant Mass
-    data['mass'] = calc_mass(data['lep_pt'], data['lep_eta'], data['lep_phi'], data['lep_E'])
+#     # Number of events in this batch
+#     nIn = len(data) 
+                            
+#     # Record transverse momenta (see bonus activity for explanation)
+#     data['leading_lep_pt'] = data['lep_pt'][:,0]
+#     data['sub_leading_lep_pt'] = data['lep_pt'][:,1]
+#     data['third_leading_lep_pt'] = data['lep_pt'][:,2]
+#     data['last_lep_pt'] = data['lep_pt'][:,3]
+    
+#     data = data[data['leading_lep_pt'] * MeV > cutoffs[0]]
+#     data = data[data['sub_leading_lep_pt'] * MeV > cutoffs[1]]
+#     data = data[data['third_leading_lep_pt'] * MeV > cutoffs[2]]
 
-    # Store Monte Carlo weights in the data
-    if 'data' not in val: # Only calculates weights if the data is MC
-        data['totalWeight'] = calc_weight(weight_variables, val, data)
-        nOut = sum(data['totalWeight']) # sum of weights passing cuts in this batch 
-    else:
-        nOut = len(data)
-    elapsed = time.time() - start # time taken to process
+#     # Cuts
+#     lep_type = data['lep_type']
+#     data = data[~cut_lep_type(lep_type)]
+#     lep_charge = data['lep_charge']
+#     data = data[~cut_lep_charge(lep_charge)]
+    
+#     # Invariant Mass
+#     data['mass'] = calc_mass(data['lep_pt'], data['lep_eta'], data['lep_phi'], data['lep_E'])
 
-    # Append data to the whole sample data list
-    sample_data.append(data)
+#     # Store Monte Carlo weights in the data
+#     if 'data' not in val: # Only calculates weights if the data is MC
+#         data['totalWeight'] = calc_weight(weight_variables, val, data)
+#         nOut = sum(data['totalWeight']) # sum of weights passing cuts in this batch 
+#     else:
+#         nOut = len(data)
+#     elapsed = time.time() - start # time taken to process
+#     print("\t\t nIn: "+str(nIn)+",\t nOut: \t"+str(nOut)+"\t in "+str(round(elapsed,1))+"s") # events before and after
+    
+
+#     # Append data to the whole sample data list
+#     sample_data.append(data)
 
 def work_on_file(s, val, fraction, step_size) -> ak.Array:
+    cutoffs = [30, 20, 10]
+    
     if s == 'data': 
         prefix = "Data/" # Data prefix
     else: # MC prefix
         prefix = "MC/mc_"+str(infofile.infos[val]["DSID"])+"."
     fileString = path+prefix+val+".4lep.root" # file name to open
-    
+
+
     # start the clock
     start = time.time() 
-    # print("\t"+val+":") 
+    print("\t"+val+":") 
 
-    # Open file (and time the download)
-    download_time_start = time.time()
-    tree = uproot.open(fileString + ":mini")
-    download_time = time.time() - download_time_start
-    # print("\t\t Time to download: "+str(round(download_time,1))+"s")
+    # Open file
+    # with uproot.open(fileString + ":mini") as t:
+    #     tree = t
+    t = uproot.open(fileString + ":mini")
+    tree = t
     
     sample_data = []
 
-    # print(f"\t\t Number of entries in tree of value: {tree.num_entries}\n")
     for data in tree.iterate(variables + weight_variables, 
                             library="ak", 
                             entry_stop=tree.num_entries*fraction, # process up to numevents*fraction
                             step_size = step_size): 
-        work_on_data(val, data, sample_data, start, download_time)
+        # work_on_data(val, data, sample_data, start)
+        # Number of events in this batch
+        nIn = len(data) 
+                                
+        # Transverse momentum records and cuts
+        data['leading_lep_pt'] = data['lep_pt'][:,0]
+        data['sub_leading_lep_pt'] = data['lep_pt'][:,1]
+        data['third_leading_lep_pt'] = data['lep_pt'][:,2]
+        data['last_lep_pt'] = data['lep_pt'][:,3]
+
+        data = data[data['leading_lep_pt'] * MeV > cutoffs[0]]
+        data = data[data['sub_leading_lep_pt'] * MeV > cutoffs[1]]
+        data = data[data['third_leading_lep_pt'] * MeV > cutoffs[2]]
+
+        # Cuts
+        lep_type = data['lep_type']
+        data = data[~cut_lep_type(lep_type)]
+        lep_charge = data['lep_charge']
+        data = data[~cut_lep_charge(lep_charge)]
+        
+        # Invariant Mass
+        data['mass'] = calc_mass(data['lep_pt'], data['lep_eta'], data['lep_phi'], data['lep_E'])
+
+        # Store Monte Carlo weights in the data
+        if 'data' not in val: # Only calculates weights if the data is MC
+            data['totalWeight'] = calc_weight(weight_variables, val, data, lumi)
+            nOut = sum(data['totalWeight']) # sum of weights passing cuts in this batch 
+        else:
+            nOut = len(data)
+        elapsed = time.time() - start # time taken to process
+        print("\t\t nIn: "+str(nIn)+",\t nOut: \t"+str(nOut)+"\t in "+str(round(elapsed,1))+"s") # events before and after
+
+        # Append data to the whole sample data list
+        sample_data.append(data)
 
     tree.close() # Ensure the file it closed
     return ak.concatenate(sample_data)

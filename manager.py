@@ -47,5 +47,5 @@ if __name__ == "__main__":
     
     print(f"Producing plot...      ", end="\r")
     volume_path = "/usr/src/app/data"
-    plotting_function.plot(all_data, samples, fraction, step_size, volume_path)
+    plotting_function.plot(all_data, samples, fraction, volume_path)
     print(f"Plot produced.         ", end="\n")

@@ -87,6 +87,7 @@ def reformat_results(collected_results, samples):
             # Find the result for the sample
             result = next((result for result in collected_results if result['s'] == s and result['val'] == val), None)
             frames.append(ak.Array(result['result']))
+            
         if frames:
             all_data[s] = ak.concatenate(frames)
         else:
