@@ -1,16 +1,20 @@
 To build and deploy:
+
 	docker-compose up --build
 
 To just build:
 -> For all Images:
+
 	docker-compose build
 
 -> For individual: -> (i.e. service = worker)
+
 	docker-compose build <service>
 
 Running:
 -> Completely Autonmated (Recomended): -> (This will automatically create the manager, and shutdown the workers 
 							  once the manager has recieved all the reasult.)
+	 
 	docker-compose up
 
 -> Manual: -> (Runs the workers and services in the background waiting for work.
