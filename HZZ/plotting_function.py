@@ -136,7 +136,8 @@ def plot(all_data, samples, fraction, path='/usr/src/app/data'):
     # draw the legend
     main_axes.legend( frameon=False ) # no box around the legend
     
-    save_path = os.makedirs(path, exist_ok=True) # create a directory to save the plot
-    save_path = os.path.join(path, "plot.png") # path to save the plot
-    plt.savefig(save_path) # save the plot as a pdf file
+    save_path = os.makedirs(path, exist_ok=True) # create a directory to save the plot if it doesn't exist
+    save_path = os.path.join(path, "4lep_mass.png") # path to save the plot
+    plt.savefig(save_path) # save the plot as a png file
+    
     # *************
