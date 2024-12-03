@@ -37,43 +37,43 @@ def calc_weight(weight_variables, sample, events, lumi=10):
         total_weight = total_weight * events[variable]
     return total_weight
 
-# def work_on_data(val, data, sample_data, start) -> None:
-#     cutoffs = [30, 20, 10]
+def work_on_data(val, data, sample_data, start) -> None:
+    cutoffs = [30, 20, 10]
     
-#     # Number of events in this batch
-#     nIn = len(data) 
+    # Number of events in this batch
+    nIn = len(data) 
                             
-#     # Record transverse momenta (see bonus activity for explanation)
-#     data['leading_lep_pt'] = data['lep_pt'][:,0]
-#     data['sub_leading_lep_pt'] = data['lep_pt'][:,1]
-#     data['third_leading_lep_pt'] = data['lep_pt'][:,2]
-#     data['last_lep_pt'] = data['lep_pt'][:,3]
+    # Record transverse momenta (see bonus activity for explanation)
+    data['leading_lep_pt'] = data['lep_pt'][:,0]
+    data['sub_leading_lep_pt'] = data['lep_pt'][:,1]
+    data['third_leading_lep_pt'] = data['lep_pt'][:,2]
+    data['last_lep_pt'] = data['lep_pt'][:,3]
     
-#     data = data[data['leading_lep_pt'] * MeV > cutoffs[0]]
-#     data = data[data['sub_leading_lep_pt'] * MeV > cutoffs[1]]
-#     data = data[data['third_leading_lep_pt'] * MeV > cutoffs[2]]
+    data = data[data['leading_lep_pt'] * MeV > cutoffs[0]]
+    data = data[data['sub_leading_lep_pt'] * MeV > cutoffs[1]]
+    data = data[data['third_leading_lep_pt'] * MeV > cutoffs[2]]
 
-#     # Cuts
-#     lep_type = data['lep_type']
-#     data = data[~cut_lep_type(lep_type)]
-#     lep_charge = data['lep_charge']
-#     data = data[~cut_lep_charge(lep_charge)]
+    # Cuts
+    lep_type = data['lep_type']
+    data = data[~cut_lep_type(lep_type)]
+    lep_charge = data['lep_charge']
+    data = data[~cut_lep_charge(lep_charge)]
     
-#     # Invariant Mass
-#     data['mass'] = calc_mass(data['lep_pt'], data['lep_eta'], data['lep_phi'], data['lep_E'])
+    # Invariant Mass
+    data['mass'] = calc_mass(data['lep_pt'], data['lep_eta'], data['lep_phi'], data['lep_E'])
 
-#     # Store Monte Carlo weights in the data
-#     if 'data' not in val: # Only calculates weights if the data is MC
-#         data['totalWeight'] = calc_weight(weight_variables, val, data)
-#         nOut = sum(data['totalWeight']) # sum of weights passing cuts in this batch 
-#     else:
-#         nOut = len(data)
-#     elapsed = time.time() - start # time taken to process
-#     print("\t\t nIn: "+str(nIn)+",\t nOut: \t"+str(nOut)+"\t in "+str(round(elapsed,1))+"s") # events before and after
+    # Store Monte Carlo weights in the data
+    if 'data' not in val: # Only calculates weights if the data is MC
+        data['totalWeight'] = calc_weight(weight_variables, val, data)
+        nOut = sum(data['totalWeight']) # sum of weights passing cuts in this batch 
+    else:
+        nOut = len(data)
+    elapsed = time.time() - start # time taken to process
+    print("\t\t nIn: "+str(nIn)+",\t nOut: \t"+str(nOut)+"\t in "+str(round(elapsed,1))+"s") # events before and after
     
 
-#     # Append data to the whole sample data list
-#     sample_data.append(data)
+    # Append data to the whole sample data list
+    sample_data.append(data)
 
 def work_on_file(s, val, fraction, step_size) -> ak.Array:
     cutoffs = [30, 20, 10]
@@ -101,40 +101,7 @@ def work_on_file(s, val, fraction, step_size) -> ak.Array:
                             library="ak", 
                             entry_stop=tree.num_entries*fraction, # process up to numevents*fraction
                             step_size = step_size): 
-        # work_on_data(val, data, sample_data, start)
-        # Number of events in this batch
-        nIn = len(data) 
-                                
-        # Transverse momentum records and cuts
-        data['leading_lep_pt'] = data['lep_pt'][:,0]
-        data['sub_leading_lep_pt'] = data['lep_pt'][:,1]
-        data['third_leading_lep_pt'] = data['lep_pt'][:,2]
-        data['last_lep_pt'] = data['lep_pt'][:,3]
-
-        data = data[data['leading_lep_pt'] * MeV > cutoffs[0]]
-        data = data[data['sub_leading_lep_pt'] * MeV > cutoffs[1]]
-        data = data[data['third_leading_lep_pt'] * MeV > cutoffs[2]]
-
-        # Cuts
-        lep_type = data['lep_type']
-        data = data[~cut_lep_type(lep_type)]
-        lep_charge = data['lep_charge']
-        data = data[~cut_lep_charge(lep_charge)]
-        
-        # Invariant Mass
-        data['mass'] = calc_mass(data['lep_pt'], data['lep_eta'], data['lep_phi'], data['lep_E'])
-
-        # Store Monte Carlo weights in the data
-        if 'data' not in val: # Only calculates weights if the data is MC
-            data['totalWeight'] = calc_weight(weight_variables, val, data, lumi)
-            nOut = sum(data['totalWeight']) # sum of weights passing cuts in this batch 
-        else:
-            nOut = len(data)
-        elapsed = time.time() - start # time taken to process
-        print("\t\t nIn: "+str(nIn)+",\t nOut: \t"+str(nOut)+"\t in "+str(round(elapsed,1))+"s") # events before and after
-
-        # Append data to the whole sample data list
-        sample_data.append(data)
+        work_on_data(val, data, sample_data, start)
 
     tree.close() # Ensure the file it closed
     return ak.concatenate(sample_data)
@@ -145,6 +112,7 @@ def process_incomming_request(body):
     val = message['val']
     fraction = message['fraction']
     step_size = message['step_size']
+    use_compression = message['use_compression']
     
     print(f"\n [x] Received job: {s}, {val}", end="\r")
 
@@ -159,9 +127,11 @@ def process_incomming_request(body):
     }
     
     result_message = json.dumps(result_message) # Json-ify the message to send
-    print(f" [*] Compressing result, uncompressed size: {len(result_message)}  ", end="\r")
+    print(f" [*] Uncompressed size: {len(result_message)}  ", end="\r")
     
-    message_compressed = zlib.compress(result_message.encode('utf-8'), level=9) # Compress the message
-    print(f" [x] Compressed result, compressed size: {len(result_message)}     ", end="\n")
+    if use_compression:
+        result_message = zlib.compress(result_message.encode('utf-8'), level=9)
+        print(f" [x] Compressed result, compressed size: {len(result_message)}     ", end="\n")
+    # message_compressed = zlib.compress(result_message.encode('utf-8'), level=9) # Compress the message
     
-    return message_compressed, s, val
+    return result_message, s, val

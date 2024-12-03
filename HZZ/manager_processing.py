@@ -14,7 +14,7 @@ def calculate_workload(job_list: list) -> None:
             job = (s, val)
             job_list.append(job)
             
-def publish_jobs(channel, job_list, fraction, step_size):
+def publish_jobs(channel, job_list, fraction, step_size, use_compression=True):
         for job in job_list:
             if job == "STOPPER":
                 continue
@@ -25,17 +25,23 @@ def publish_jobs(channel, job_list, fraction, step_size):
             message = json.dumps({"s": s, 
                                 "val": val, 
                                 "fraction": fraction, 
-                                "step_size": step_size})
+                                "step_size": step_size,
+                                "use_compression": use_compression
+                                })
+            
             channel.basic_publish(exchange='', routing_key='work_queue', body=message)
             print(f" [x] Sent {message}")
             
-def manager_receive_results(channel, collected_results, job_list):
+def manager_receive_results(channel, collected_results, job_list, use_compression=True):
         def callback(ch, method, properties, body):
-            # Decompress the message
-            decompressed_message = zlib.decompress(body).decode('utf-8')
+            message = body
+            
+            if use_compression:
+                # Decompress the message
+                message = zlib.decompress(message).decode('utf-8')
             
             # Decode message
-            message = json.loads(decompressed_message)
+            message = json.loads(message)
             
             # Extract the information
             s = message['s']

@@ -7,7 +7,7 @@ import HZZ.plotting_function as plotting_function
 from HZZ.definitions import samples, fraction, step_size
 
 
-def send_workload(job_list) -> None:
+def send_workload(job_list, use_compression) -> None:
     rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
     params = pika.ConnectionParameters(rabbitmq_host)
     connection = pika.BlockingConnection(params)
@@ -16,34 +16,36 @@ def send_workload(job_list) -> None:
     channel.queue_declare(queue='work_queue')
     channel.queue_declare(queue='result_queue')
     
-    processing.publish_jobs(channel, job_list, fraction, step_size)
+    processing.publish_jobs(channel, job_list, fraction, step_size, use_compression)
     
     connection.close()
 
-def receive_results(collected_results, job_list) -> None:
+def receive_results(collected_results, job_list, use_compression) -> None:
     rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
     params = pika.ConnectionParameters(rabbitmq_host)
     connection = pika.BlockingConnection(params)
     channel = connection.channel()
     
-    processing.manager_receive_results(channel, collected_results, job_list)
+    processing.manager_receive_results(channel, collected_results, job_list, use_compression)
     
     channel.start_consuming()
     connection.close()
 
 if __name__ == "__main__":
+    use_compression = True
     collected_results = []
     job_list = ["STOPPER"]
     processing.calculate_workload(job_list)
     
     processing_time = time.time()
-    send_workload(job_list)
-    receive_results(collected_results, job_list)
-    print(f"Processing time: {time.time() - processing_time}")
+    send_workload(job_list, use_compression)
+    receive_results(collected_results, job_list, use_compression)
     
     print(f"Reformatting results...", end="\r")
     all_data = processing.reformat_results(collected_results, samples)
     print(f"Results reformatted.   ", end="\n")
+    
+    print(f"Processing time: {time.time() - processing_time}", end="\n")
     
     print(f"Producing plot...      ", end="\r")
     volume_path = "/usr/src/app/data"
