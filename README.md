@@ -8,6 +8,10 @@ Based on the code found in this [Notebook](https://github.com/atlas-outreach-dat
 
 	docker-compose up --build
 
+to then shut down and exit
+
+	docker-compose down
+
 #### To just build:
 
 For all Images:
@@ -20,10 +24,15 @@ For individual: (i.e. service = worker)
 
 #### Running:
 
-Completely Automated (Recommended): 
+Completely Automated (Recommended):
+Compression is disabled by default. 
 (This will automatically create the manager, and shutdown the workers once the manager has received all the results.)
 
     docker-compose up
+
+then to shut down the RabbitMQ server
+
+	docker-compore down
 
 Manual: 
 (Runs the workers and services in the background waiting for work. The second command runs and attaches to the manager, in theory you could run multiple managers. This method leaves the workers running for other computations.) 

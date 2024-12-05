@@ -1,0 +1,3 @@
+FROM rabbitmq:3-management
+
+COPY Dockerfiles/rabbitmq.conf /etc/rabbitmq/rabbitmq.conf

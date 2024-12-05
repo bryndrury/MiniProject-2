@@ -5,9 +5,9 @@ FROM python:latest
 WORKDIR /usr/src/app
 
 # Copy the current directory contents into the container at /usr/src/app
-COPY manager.py .
-COPY infofile.py .
-COPY HZZ /usr/src/app/HZZ
+COPY PythonScripts/manager.py .
+COPY PythonScripts/infofile.py .
+COPY PythonScripts/HZZ /usr/src/app/HZZ
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir pika numpy matplotlib matplotlib_inline awkward IPython aiohttp requests

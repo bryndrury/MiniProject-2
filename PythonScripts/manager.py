@@ -32,7 +32,7 @@ def receive_results(collected_results, job_list, use_compression) -> None:
     connection.close()
 
 if __name__ == "__main__":
-    use_compression = True
+    use_compression = False
     collected_results = []
     job_list = ["STOPPER"]
     processing.calculate_workload(job_list)

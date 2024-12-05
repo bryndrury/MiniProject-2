@@ -2,7 +2,7 @@ services:
   rabbitmq:
     build:
       context: .
-      dockerfile: Dockerfile.rabbitmq
+      dockerfile: Dockerfiles/Dockerfile.rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -23,7 +23,7 @@ services:
   manager:
     build:
       context: .
-      dockerfile: Dockerfile.manager
+      dockerfile: Dockerfiles/Dockerfile.manager
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -42,7 +42,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile.worker
+      dockerfile: Dockerfiles/Dockerfile.worker
     depends_on:
       rabbitmq:
         condition: service_healthy
