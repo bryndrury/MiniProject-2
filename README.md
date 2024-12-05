@@ -25,7 +25,7 @@ For individual: (i.e. service = worker)
 #### Running:
 
 Completely Automated (Recommended):
-Compression is disabled by default. 
+Compression is disabled by default (to change, alter the use_compression variable in manager script). 
 (This will automatically create the manager, and shutdown the workers once the manager has received all the results.)
 
     docker-compose up
